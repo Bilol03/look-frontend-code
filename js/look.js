@@ -6,6 +6,8 @@ const userAddForm = document.querySelector('#userAdd')
 const inputName = document.querySelector('#usernameInput')
 const inputPhone = document.querySelector('#telephoneInput')
 const foodsSelect = document.querySelector('#foodsSelect')
+const foodsCount = document.querySelector('#foodsCount')
+const foodsForm = document.querySelector('#foodsForm')
 
 const hostName = 'http://192.168.137.1:8000'
 
@@ -88,6 +90,8 @@ renderFoods()
 
 userAddForm.onsubmit = async event => {
 	event.preventDefault()
+
+	if(!inputName || !inputPhone) return
 	try{
 		fetch(hostName + "/users", {
 			method: "POST",
@@ -106,9 +110,38 @@ userAddForm.onsubmit = async event => {
 	inputName.value = null
 	inputPhone.value = null
 	renderUsers()
-	// console.log(inputName.value)
-	// console.log(inputPhone.value)
 }
+
+foodsForm.onsubmit = async event => {
+	event.preventDefault()
+	console.log()
+	console.log()
+	console.log()
+	try {
+		fetch(hostName + '/orders', {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				userId: clientId.textContent,
+				foodId: foodsSelect.value,
+				count: foodsCount.value
+			})
+		})
+		foodsSelect.value = 1
+		foodsCount.value = null
+		renderOrders(clientId.textContent)
+	}
+	catch(error) {
+		alert(error)
+	}
+
+}
+
+
+
+
 
 // let responce = await fetch(hostName + '/users', {
 // 	method: "POST",
