@@ -2,9 +2,10 @@ const customersList = document.querySelector('.customers-list')
 const ordersList = document.querySelector('.orders-list')
 const clientId = document.querySelector('#clientId')
 const userHeader = document.querySelector('#userHeader')
+const userAddForm = document.querySelector('#userAdd')
 const inputName = document.querySelector('#usernameInput')
-const inputPhone = document.querySelector('telephoneInput')
-const submit = document.querySelector('.submit')
+const inputPhone = document.querySelector('#telephoneInput')
+const foodsSelect = document.querySelector('#foodsSelect')
 
 const hostName = 'http://192.168.137.1:8000'
 
@@ -20,6 +21,7 @@ function createElements (...array) {
 async function renderUsers () {
 	const response = await fetch(hostName + '/users')
 	const users = await response.json()
+	customersList.innerHTML = null
 	for(let user of users) {
 		const [li, span, a] = createElements('li', 'span', 'a')
 		
@@ -69,27 +71,53 @@ async function renderOrders (userId) {
 
 }
 
-async function postInfo ({ username, phone }) {
-    let responce = await fetch(hostName + '/users', {
-        method: "POST",
-        headers: {
-            'Content-Type': "application/json"
-        },
-        body: JSON.stringify({
-            username,
-            phone
-        })
-    })
-    return await responce.json()
-}
+async function renderFoods () {
+	const response = await fetch(hostName + '/foods')
+	const foods = await response.json()
+	for (let food of foods){
+		let [option] = createElements('option')
 
-submit.addEventListener('submit', async (el) => {
-	el.preventDefault()
-	let info = await postInfo({username: inputName.value, phone: inputPhone.value})
+		option.value = food.food_id
+		option.textContent = food.food_name
+		renderOrders()
+		foodsSelect.append(option)	
+	}
+
+}
+renderFoods()
+
+userAddForm.onsubmit = async event => {
+	event.preventDefault()
+	try{
+		fetch(hostName + "/users", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				username: inputName.value,
+				phone: inputPhone.value
+			})
+		})
+	}catch(error){
+		alert(error)
+	}
+	
+	inputName.value = null
+	inputPhone.value = null
 	renderUsers()
 	// console.log(inputName.value)
 	// console.log(inputPhone.value)
-		
-})
+}
 
+// let responce = await fetch(hostName + '/users', {
+// 	method: "POST",
+// 	headers: {
+// 		'Content-Type': "application/json"
+// 	},
+// 	body: JSON.stringify({
+// 		username,
+// 		phone
+// 	})
+// })
 renderUsers()
